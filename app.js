@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', () =>{
         }
         lastY = event.touches[0].clientY;
     },{passive: false});
+    window.addEventListener(
+        "touchmove",
+        function(event) {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        },
+        { passive: false }
+    );
 
 
 
