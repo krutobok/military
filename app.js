@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', () =>{
+
+    let lastY = 1;
+    document.addEventListener("touchmove", function (event) {
+        let lastS = document.documentElement.scrollTop;
+        if(lastS === 0 && (lastY-event.touches[0].clientY)<0 && event.cancelable){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        lastY = event.touches[0].clientY;
+    },{passive: false});
+
+
+
     const grid = document.querySelector('.grid')
     const popup = document.querySelector('.popup')
     const popupText = document.querySelector('.popup__text')
@@ -97,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.style.display = 'none'
         detect = false
     }
- console.log(detect)
 
 
     const militaryEquipment = [
@@ -331,23 +343,21 @@ document.addEventListener('DOMContentLoaded', () =>{
         //            classBeingDragged = square.className
         //            squareIdBeingDragged = parseInt(square.id)
         //            killer = 0
-        //            console.log(classBeingDragged)
+        //
         //        }
         //        else{
         //            squareIdBeingReplaced = null
         //            squareIdBeingDragged = null
         //        }
-        //        console.log(squareIdBeingDragged)
+        //
         //    }
         //    else if (squareIdBeingDragged !== null){
-        //        console.log(squareIdBeingDragged)
+        //
         //        if (squareIdBeingDragged !== null){
         //            classBeingReplaced = square.className
-        //            console.log(classBeingReplaced)
+        //
         //            squareIdBeingReplaced = parseInt(square.id)
-        //            // if (classBeingDragged === 'bayraktar' && squareIdBeingReplaced === squareIdBeingDragged){
-        //            //     console.log(this)
-        //            // }
+        //
         //            square.className = classBeingDragged
         //            squares[squareIdBeingDragged].className = classBeingReplaced
         //            dragEnd()
@@ -373,13 +383,11 @@ document.addEventListener('DOMContentLoaded', () =>{
                     classBeingDragged = square.className
                     squareIdBeingDragged = parseInt(square.id)
                     killer = 0
-                    console.log(classBeingDragged)
                 }
                 else{
                     squareIdBeingReplaced = null
                     squareIdBeingDragged = null
                 }
-                console.log(squareIdBeingDragged)
             }))
             unDisabledSquares.forEach(square => square.addEventListener('touchmove',    function touchStart(ev){
                 let touchLocation = ev.targetTouches[0];
@@ -391,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () =>{
 
 
             unDisabledSquares.forEach(square => square.addEventListener('touchend', function touchEnd(){
-                console.log(squareIdBeingDragged)
                 if (squareIdBeingDragged !== null){
                     let currentPosition = 0
                     for (let i = 0; i < topPosition - 80; i += 80){
@@ -401,13 +408,12 @@ document.addEventListener('DOMContentLoaded', () =>{
                         currentPosition ++
                     }
                     squareIdBeingReplaced = currentPosition
-                    console.log(currentPosition)
                     classBeingReplaced = squares[squareIdBeingReplaced].className
-                    console.log(classBeingReplaced)
                     squares[squareIdBeingReplaced].className = classBeingDragged
                     squares[squareIdBeingDragged].className = classBeingReplaced
                     dragEnd()
                     setTimeout(()=> {
+                        console.log(killer)
                         if (killer === 0){
                             squares[squareIdBeingReplaced].className = classBeingReplaced
                             squares[squareIdBeingDragged].className = classBeingDragged
@@ -585,7 +591,6 @@ document.addEventListener('DOMContentLoaded', () =>{
             classBeingDragged = this.className
             squareIdBeingDragged = parseInt(this.id)
             killer = 0
-            console.log(classBeingDragged)
         }
         else{
             squareIdBeingReplaced = null
@@ -603,13 +608,11 @@ document.addEventListener('DOMContentLoaded', () =>{
         // this.className = ''
     }
     function dragDrop(){
-        console.log(squareIdBeingDragged)
         if (squareIdBeingDragged !== null){
             classBeingReplaced = this.className
-            console.log(classBeingReplaced)
             squareIdBeingReplaced = parseInt(this.id)
             // if (classBeingDragged === 'bayraktar' && squareIdBeingReplaced === squareIdBeingDragged){
-            //     console.log(this)
+            //
             // }
             this.className = classBeingDragged
             squares[squareIdBeingDragged].className = classBeingReplaced
@@ -646,7 +649,6 @@ document.addEventListener('DOMContentLoaded', () =>{
 
     function dragEnd() {
         if (squareIdBeingDragged !== null && squareIdBeingReplaced !== null) {
-            console.log(classBeingReplaced)
 
             let validMoves = [squareIdBeingDragged - 1,
                 squareIdBeingDragged - width,
@@ -737,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () =>{
                 squares[squareIdBeingDragged].className = classBeingDragged
             }
             else if (squareIdBeingReplaced && validMove) {
-                squareIdBeingReplaced = null
+                // squareIdBeingReplaced = null
                 moveDecrease()
             }
             else squares[squareIdBeingDragged].className = classBeingDragged
@@ -1270,7 +1272,6 @@ function boomChecking() {
                         }
                         killerGlobal++
                         squares[i].className = ''
-                        console.log(this.getAttribute('id'))
                         if (i % width !== 0 && !squares[i-1].hasAttribute('data-disabled')){
                             militaryNumbers(i-1)
                             squares[i-1].className = ''
