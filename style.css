@@ -1,3 +1,11 @@
+body{
+    padding: 0;
+    margin: 0;
+}
+html{
+    padding: 0;
+}
+
 .grid{
     display: none;
     flex-wrap: wrap;
@@ -6,6 +14,8 @@
     border-image-repeat:round round;
     border-image-width: 8px;
     border-image-slice: 100;
+    position: relative;
+    margin-left: 10px;
 }
 
 
@@ -65,6 +75,7 @@
     left: 0;
     background-color: rgba(0, 0, 0, 0.6);
     display: none;
+    z-index: 99;
 }
 .popup__content{
     display: flex;
@@ -104,7 +115,7 @@
     width: 40px;
     height: 40px;
     position: absolute;
-    z-index: 10;
+    z-index: 20;
     border: 1px solid gray;
     cursor: pointer;
 }
@@ -115,6 +126,8 @@
 .statistics{
     display: none;
     align-items: center;
+    height: 82px;
+    margin-left: 10px;
 }
 .board{
     display: flex;
@@ -230,7 +243,18 @@
     display: none;
     justify-content: space-between;
     margin-top: 10px;
+    margin-left: 10px;
 }
 .mix-up, .surrender{
     font-size: 20px;
+}
+
+.grid .mobile__cursor{
+    width: 2px;
+    height: 2px;
+    background-color: black;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
 }

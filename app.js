@@ -82,8 +82,21 @@ document.addEventListener('DOMContentLoaded', () =>{
     let currentPlanes = 0
     let currentBay = 0
     let currentDron = 0
-
-
+    let detect
+    let leftPosition
+    let topPosition
+    const mobileCursor = document.createElement('div')
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        detect = true
+        mobileCursor.classList.add('mobile__cursor')
+        mobileCursor.style.opacity = '0'
+        grid.appendChild(mobileCursor)
+    }
+    else {
+        mobileCursor.style.display = 'none'
+        detect = false
+    }
+ console.log(detect)
 
 
     const militaryEquipment = [
@@ -310,12 +323,109 @@ document.addEventListener('DOMContentLoaded', () =>{
         unDisabledSquares.forEach(square => square.addEventListener('dragenter', dragEnter))
         unDisabledSquares.forEach(square => square.addEventListener('dragleave', dragLeave))
         unDisabledSquares.forEach(square => square.addEventListener('drop', dragDrop))
-        unDisabledSquares.forEach(square => square.addEventListener('touchstart', dragStart))
-        unDisabledSquares.forEach(square => square.addEventListener('touchend', () =>{
-            dragDrop()
-            dragEnd()
-        }))
+        // unDisabledSquares.forEach(square => square.addEventListener('touchstart', dragStart))
+        // unDisabledSquares.forEach(square => square.addEventListener('click', ()=>{
+        //    if (squareIdBeingDragged === null){
+        //        if (killerGlobal === 0){
+        //            classBeingDragged = square.className
+        //            squareIdBeingDragged = parseInt(square.id)
+        //            killer = 0
+        //            console.log(classBeingDragged)
+        //        }
+        //        else{
+        //            squareIdBeingReplaced = null
+        //            squareIdBeingDragged = null
+        //        }
+        //        console.log(squareIdBeingDragged)
+        //    }
+        //    else if (squareIdBeingDragged !== null){
+        //        console.log(squareIdBeingDragged)
+        //        if (squareIdBeingDragged !== null){
+        //            classBeingReplaced = square.className
+        //            console.log(classBeingReplaced)
+        //            squareIdBeingReplaced = parseInt(square.id)
+        //            // if (classBeingDragged === 'bayraktar' && squareIdBeingReplaced === squareIdBeingDragged){
+        //            //     console.log(this)
+        //            // }
+        //            square.className = classBeingDragged
+        //            squares[squareIdBeingDragged].className = classBeingReplaced
+        //            dragEnd()
+        //            setTimeout(()=> {
+        //                if (killer === 0){
+        //                    square.className = classBeingReplaced
+        //                    squares[squareIdBeingDragged].className = classBeingDragged
+        //                    if (isMoves === true){
+        //                        currentMoves++
+        //                    }
+        //                }
+        //                squareIdBeingDragged = null
+        //                squareIdBeingReplaced = null
+        //            }, 151)
+        //        }
+        //    }
+        // }))
+
+
+        if (detect === true){
+            unDisabledSquares.forEach(square => square.addEventListener('touchstart',    function touchStart(){
+                if (killerGlobal === 0){
+                    classBeingDragged = square.className
+                    squareIdBeingDragged = parseInt(square.id)
+                    killer = 0
+                    console.log(classBeingDragged)
+                }
+                else{
+                    squareIdBeingReplaced = null
+                    squareIdBeingDragged = null
+                }
+                console.log(squareIdBeingDragged)
+            }))
+            unDisabledSquares.forEach(square => square.addEventListener('touchmove',    function touchStart(ev){
+                let touchLocation = ev.targetTouches[0];
+                leftPosition = touchLocation.pageX - 10-10
+                topPosition = touchLocation.pageY - 92 - 5
+                mobileCursor.style.left = leftPosition + 'px'
+                mobileCursor.style.top = topPosition + 'px'
+            }))
+
+
+            unDisabledSquares.forEach(square => square.addEventListener('touchend', function touchEnd(){
+                console.log(squareIdBeingDragged)
+                if (squareIdBeingDragged !== null){
+                    let currentPosition = 0
+                    for (let i = 0; i < topPosition - 80; i += 80){
+                        currentPosition += width
+                    }
+                    for (let i = 0; i < leftPosition - 80; i += 80){
+                        currentPosition ++
+                    }
+                    squareIdBeingReplaced = currentPosition
+                    console.log(currentPosition)
+                    classBeingReplaced = squares[squareIdBeingReplaced].className
+                    console.log(classBeingReplaced)
+                    squares[squareIdBeingReplaced].className = classBeingDragged
+                    squares[squareIdBeingDragged].className = classBeingReplaced
+                    dragEnd()
+                    setTimeout(()=> {
+                        if (killer === 0){
+                            squares[squareIdBeingReplaced].className = classBeingReplaced
+                            squares[squareIdBeingDragged].className = classBeingDragged
+                            if (isMoves === true){
+                                currentMoves++
+                            }
+                        }
+                        squareIdBeingDragged = null
+                        squareIdBeingReplaced = null
+                    }, 151)
+                }
+            }))
+
+        }
     }
+
+
+
+
 
 
     surrenderBtn.addEventListener('click', function () {
@@ -463,8 +573,8 @@ document.addEventListener('DOMContentLoaded', () =>{
 
     let classBeingDragged
     let classBeingReplaced
-    let squareIdBeingDragged
-    let squareIdBeingReplaced
+    let squareIdBeingDragged = null
+    let squareIdBeingReplaced = null
 
 
 
@@ -474,6 +584,7 @@ document.addEventListener('DOMContentLoaded', () =>{
             classBeingDragged = this.className
             squareIdBeingDragged = parseInt(this.id)
             killer = 0
+            console.log(classBeingDragged)
         }
         else{
             squareIdBeingReplaced = null
@@ -491,8 +602,10 @@ document.addEventListener('DOMContentLoaded', () =>{
         // this.className = ''
     }
     function dragDrop(){
+        console.log(squareIdBeingDragged)
         if (squareIdBeingDragged !== null){
             classBeingReplaced = this.className
+            console.log(classBeingReplaced)
             squareIdBeingReplaced = parseInt(this.id)
             // if (classBeingDragged === 'bayraktar' && squareIdBeingReplaced === squareIdBeingDragged){
             //     console.log(this)
@@ -532,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () =>{
 
     function dragEnd() {
         if (squareIdBeingDragged !== null && squareIdBeingReplaced !== null) {
-
+            console.log(classBeingReplaced)
 
             let validMoves = [squareIdBeingDragged - 1,
                 squareIdBeingDragged - width,
