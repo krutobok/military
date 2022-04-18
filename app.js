@@ -9,15 +9,16 @@ document.addEventListener('DOMContentLoaded', () =>{
         }
         lastY = event.touches[0].clientY;
     },{passive: false});
-    window.addEventListener(
-        "touchmove",
-        function(event) {
-            if (event.scale !== 1) {
-                event.preventDefault();
-            }
-        },
-        { passive: false }
-    );
+
+    // window.addEventListener(
+    //     "touchmove",
+    //     function(event) {
+    //         if (event.scale !== 1) {
+    //             event.preventDefault();
+    //         }
+    //     },
+    //     { passive: false }
+    // );
 
 
 
@@ -113,6 +114,14 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.classList.add('mobile__cursor')
         mobileCursor.style.opacity = '0'
         grid.appendChild(mobileCursor)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            let now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     }
     else {
         mobileCursor.style.display = 'none'
