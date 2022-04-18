@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () =>{
     let timerIdDecrease = null
     let currentTime
     let currentLevel = 1
-    let currentLevelUnlock = 5
+    let currentLevelUnlock = 1
     let aim
     let tankCounter = 0
     let helicopterCounter = 0
@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.classList.add('mobile__cursor')
         mobileCursor.style.opacity = '0'
         grid.appendChild(mobileCursor)
-        statistics.style.marginTop = '200px'
     }
     else {
         mobileCursor.style.display = 'none'
@@ -161,6 +160,10 @@ document.addEventListener('DOMContentLoaded', () =>{
         tankAim = 0
         borderedAll = 0
         currentMoves = 0
+        squareIdBeingDragged = null
+        squareIdBeingReplaced = null
+        classBeingDragged = null
+        classBeingReplaced = null
         isPlaying = false
         grid.classList.add('inactive')
     }
@@ -168,8 +171,8 @@ document.addEventListener('DOMContentLoaded', () =>{
 
     function createLevel(level){
         level.classList.add('level')
-        // level.style.display = "none"  change after
-        level.style.display = "block"
+        level.style.display = "none"
+        // level.style.display = "block"
         map.appendChild(level)
     }
 
@@ -336,45 +339,51 @@ document.addEventListener('DOMContentLoaded', () =>{
         unDisabledSquares.forEach(square => square.addEventListener('dragenter', dragEnter))
         unDisabledSquares.forEach(square => square.addEventListener('dragleave', dragLeave))
         unDisabledSquares.forEach(square => square.addEventListener('drop', dragDrop))
-        // unDisabledSquares.forEach(square => square.addEventListener('touchstart', dragStart))
-        // unDisabledSquares.forEach(square => square.addEventListener('click', ()=>{
-        //    if (squareIdBeingDragged === null){
-        //        if (killerGlobal === 0){
-        //            classBeingDragged = square.className
-        //            squareIdBeingDragged = parseInt(square.id)
-        //            killer = 0
-        //
-        //        }
-        //        else{
-        //            squareIdBeingReplaced = null
-        //            squareIdBeingDragged = null
-        //        }
-        //
-        //    }
-        //    else if (squareIdBeingDragged !== null){
-        //
-        //        if (squareIdBeingDragged !== null){
-        //            classBeingReplaced = square.className
-        //
-        //            squareIdBeingReplaced = parseInt(square.id)
-        //
-        //            square.className = classBeingDragged
-        //            squares[squareIdBeingDragged].className = classBeingReplaced
-        //            dragEnd()
-        //            setTimeout(()=> {
-        //                if (killer === 0){
-        //                    square.className = classBeingReplaced
-        //                    squares[squareIdBeingDragged].className = classBeingDragged
-        //                    if (isMoves === true){
-        //                        currentMoves++
-        //                    }
-        //                }
-        //                squareIdBeingDragged = null
-        //                squareIdBeingReplaced = null
-        //            }, 151)
-        //        }
-        //    }
-        // }))
+        unDisabledSquares.forEach(square => square.addEventListener('click', ()=>{
+           if (squareIdBeingDragged === null){
+               if (killerGlobal === 0){
+                   classBeingDragged = square.className
+                   squareIdBeingDragged = parseInt(square.id)
+                   killer = 0
+               }
+               else{
+                   squareIdBeingReplaced = null
+                   squareIdBeingDragged = null
+                   classBeingReplaced = null
+                   classBeingDragged = null
+               }
+
+           }
+           else if (squareIdBeingDragged !== null){
+               squareIdBeingReplaced = parseInt(square.id)
+               if (squareIdBeingReplaced === squareIdBeingDragged){
+                   squareIdBeingReplaced = null
+                   squareIdBeingDragged = null
+                   classBeingReplaced = null
+                   classBeingDragged = null
+               }
+               else if (squareIdBeingReplaced !== squareIdBeingDragged){
+                   classBeingReplaced = square.className
+
+                   square.className = classBeingDragged
+                   squares[squareIdBeingDragged].className = classBeingReplaced
+                   dragEnd()
+                   setTimeout(()=> {
+                       if (killer === 0){
+                           square.className = classBeingReplaced
+                           squares[squareIdBeingDragged].className = classBeingDragged
+                           if (isMoves === true){
+                               currentMoves++
+                           }
+                       }
+                       squareIdBeingDragged = null
+                       squareIdBeingReplaced = null
+                       classBeingReplaced = null
+                       classBeingDragged = null
+                   }, 151)
+               }
+           }
+        }))
 
 
         if (detect === true){
@@ -387,43 +396,54 @@ document.addEventListener('DOMContentLoaded', () =>{
                 else{
                     squareIdBeingReplaced = null
                     squareIdBeingDragged = null
+                    classBeingReplaced = null
+                    classBeingDragged = null
                 }
             }))
             unDisabledSquares.forEach(square => square.addEventListener('touchmove',    function touchStart(ev){
                 let touchLocation = ev.targetTouches[0];
                 leftPosition = touchLocation.pageX - 10-10
-                topPosition = touchLocation.pageY - 92 - 5 - 200
+                topPosition = touchLocation.pageY - 92 - 5
                 mobileCursor.style.left = leftPosition + 'px'
                 mobileCursor.style.top = topPosition + 'px'
             }))
 
 
             unDisabledSquares.forEach(square => square.addEventListener('touchend', function touchEnd(){
-                if (squareIdBeingDragged !== null){
+                if (squareIdBeingDragged !== null) {
                     let currentPosition = 0
-                    for (let i = 0; i < topPosition - 80; i += 80){
+                    for (let i = 0; i < topPosition - 80; i += 80) {
                         currentPosition += width
                     }
-                    for (let i = 0; i < leftPosition - 80; i += 80){
-                        currentPosition ++
+                    for (let i = 0; i < leftPosition - 80; i += 80) {
+                        currentPosition++
                     }
                     squareIdBeingReplaced = currentPosition
-                    classBeingReplaced = squares[squareIdBeingReplaced].className
-                    squares[squareIdBeingReplaced].className = classBeingDragged
-                    squares[squareIdBeingDragged].className = classBeingReplaced
-                    dragEnd()
-                    setTimeout(()=> {
-                        console.log(killer)
-                        if (killer === 0){
-                            squares[squareIdBeingReplaced].className = classBeingReplaced
-                            squares[squareIdBeingDragged].className = classBeingDragged
-                            if (isMoves === true){
-                                currentMoves++
-                            }
-                        }
-                        squareIdBeingDragged = null
+                    if (squareIdBeingReplaced === squareIdBeingDragged) {
                         squareIdBeingReplaced = null
-                    }, 151)
+                        squareIdBeingDragged = null
+                        classBeingReplaced = null
+                        classBeingDragged = null
+                    } else {
+                        classBeingReplaced = squares[squareIdBeingReplaced].className
+                        squares[squareIdBeingReplaced].className = classBeingDragged
+                        squares[squareIdBeingDragged].className = classBeingReplaced
+                        dragEnd()
+                        setTimeout(() => {
+                            console.log(killer)
+                            if (killer === 0) {
+                                squares[squareIdBeingReplaced].className = classBeingReplaced
+                                squares[squareIdBeingDragged].className = classBeingDragged
+                                if (isMoves === true) {
+                                    currentMoves++
+                                }
+                            }
+                            squareIdBeingDragged = null
+                            squareIdBeingReplaced = null
+                            classBeingReplaced = null
+                            classBeingDragged = null
+                        }, 151)
+                    }
                 }
             }))
 
@@ -624,6 +644,10 @@ document.addEventListener('DOMContentLoaded', () =>{
                         currentMoves++
                     }
                 }
+                squareIdBeingReplaced = null
+                squareIdBeingDragged = null
+                classBeingReplaced = null
+                classBeingDragged = null
             }, 151)
         }
     }
@@ -685,9 +709,15 @@ document.addEventListener('DOMContentLoaded', () =>{
             }
             if (classBeingDragged === "bayraktar" && classBeingReplaced === "bayraktar") {
                 squares[squareIdBeingDragged].className = ''
-                squares[squareIdBeingDragged].ondblclick = null
+                if (detect === true) {
+                    squares[squareIdBeingDragged].oncontextmenu= null
+                    squares[squareIdBeingReplaced].oncontextmenu = null
+                }
+                if (detect === false) {
+                    squares[squareIdBeingDragged].ondblclick= null
+                    squares[squareIdBeingReplaced].ondblclick = null
+                }
                 squares[squareIdBeingReplaced].className = ''
-                squares[squareIdBeingReplaced].ondblclick = null
                 let boomScore = 1
                 killer++
                 moveDecrease()
@@ -1231,7 +1261,12 @@ function squaresChecking() {
         if (isPlaying === true) {
             squares[index].className = 'bayraktar'
             if (isBay === false) {
-                popupText.textContent = "Це - Байрактар при двойному кліку на нього він підриває ворожу техніку, що знаходиться поряд"
+                if (detect === true){
+                    popupText.textContent = "Це - Байрактар при довгому кліку на нього він підриває ворожу техніку, що знаходиться поряд"
+                }
+                if (detect === false){
+                    popupText.textContent = "Це - Байрактар при двойному кліку на нього він підриває ворожу техніку, що знаходиться поряд"
+                }
                 popupImg.setAttribute('src', "img/bayractar.jpg")
                 popup.style.display = "block"
                 isBay = true
@@ -1262,23 +1297,58 @@ function squaresChecking() {
 
 
 function boomChecking() {
-        for (let i = 0; i < squares.length; i++){
-            if (squares[i].className === 'bayraktar'){
-                squares[i].ondblclick = function (boom) {
-                    setTimeout(()=>{
+        for (let i = 0; i < squares.length; i++) {
+            if (squares[i].className === 'bayraktar') {
+                squares[i].setAttribute('draggable', false)
+                if (detect === true) {
+                    squares[i].oncontextmenu = function (boom) {
+                            let boomScore = 1
+                            if (timerId === null) {
+                                timerId = setInterval(checking, 100)
+                            }
+                            killerGlobal++
+                            squares[i].className = ''
+                            squares[i].oncontextmenu = null
+                            if (i % width !== 0 && !squares[i - 1].hasAttribute('data-disabled')) {
+                                militaryNumbers(i - 1)
+                                squares[i - 1].className = ''
+                                boomScore++
+                            }
+                            if ((i + 1) % width !== 0 && !squares[i + 1].hasAttribute('data-disabled')) {
+                                militaryNumbers(i + 1)
+                                squares[i + 1].className = ''
+                                boomScore++
+                            }
+                            if (i < squares.length - width && !squares[i + width].hasAttribute('data-disabled')) {
+                                militaryNumbers(i + width)
+                                squares[i + width].className = ''
+                                boomScore++
+                            }
+                            if (i >= width && !squares[i - width].hasAttribute('data-disabled')) {
+                                militaryNumbers(i - width)
+                                squares[i - width].className = ''
+                                boomScore++
+                            }
+                            score += boomScore
+                            scoreDisplay.textContent = score
+                        }
+                }
+                if (detect === false) {
+                    squares[i].ondblclick = function (boom) {
                         let boomScore = 1
-                        if (timerId === null){
+                        if (timerId === null) {
                             timerId = setInterval(checking, 100)
                         }
                         killerGlobal++
                         squares[i].className = ''
-                        if (i % width !== 0 && !squares[i-1].hasAttribute('data-disabled')){
-                            militaryNumbers(i-1)
-                            squares[i-1].className = ''
+                        squares[i].ondblclick = null
+                        if (i % width !== 0 && !squares[i - 1].hasAttribute('data-disabled')) {
+                            militaryNumbers(i - 1)
+                            squares[i - 1].className = ''
                             boomScore++
                         }
-                        if ((i+1) % width !== 0 && !squares[i + 1].hasAttribute('data-disabled')) {
-                            militaryNumbers(i+1)
+                        if ((i + 1) % width !== 0 && !squares[i + 1].hasAttribute('data-disabled')) {
+                            militaryNumbers(i + 1)
                             squares[i + 1].className = ''
                             boomScore++
                         }
@@ -1292,15 +1362,26 @@ function boomChecking() {
                             squares[i - width].className = ''
                             boomScore++
                         }
+                        squares[i].className = ''
+                        squareIdBeingDragged = null
+                        squareIdBeingReplaced = null
+                        classBeingDragged = null
+                        classBeingReplaced = null
                         score += boomScore
                         scoreDisplay.textContent = score
-                        squares[i].className = ''
-                        squares[i].ondblclick = null
-                    }, 50)
+                    }
+
                 }
             }
-            if (squares[i].className !== 'bayraktar'){
-                squares[i].ondblclick = null
+            if (squares[i].className !== 'bayraktar') {
+                console.log('bay')
+               if (detect === true) {
+                  squares[i].oncontextmenu = null
+               }
+               if (detect === false) {
+                  squares[i].ondblclick = null
+               }
+               squares[i].setAttribute('draggable', true)
             }
         }
 }
