@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Military</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="app.js"></script>
+</head>
+<body>
+
+
+<div class="map">
+    <img class='map__img' src="img/map.jpg" alt="">
+</div>
+<div class="statistics">
+    <div class="board score-board">
+        <h3 class="destroyed">Знищиної техніки: </h3>
+        <div class="score__display"> <span id="score">0</span> / <span id="score__aim">400</span></div>
+        <div class="img__items-box">
+            <div class="score__img"></div>
+            <p class="score__img-text"><span class="score__item"></span>/<span class="score__item-aim"></span></p>
+        </div>
+    </div>
+    <div class="board timer__board">
+        <h3>Залишилося часу: </h3>
+        <span id="timer">0</span>
+    </div>
+    <div class="board moves__board">
+        <h3>Залишилося ходів: </h3>
+        <span id="moves">0</span>
+    </div>
+</div>
+
+
+    <div class="grid"></div>
+
+<div class="menu__btn-box">
+    <button class="mix-up">Перемішати(коштує 20 секунд)</button>
+    <button class="surrender">Здатися</button>
+</div>
+
+
+<div class="popup">
+    <div class="popup__content">
+        <div class="popup__left">
+            <p class="popup__text"></p>
+            <button class="close__btn">ОК</button>
+        </div>
+        <img src="" alt="" class="popup__img">
+    </div>
+</div>
+<div class="context">
+    <div class="context__content">
+        <h3 class="context__title">На жаль, ви програли</h3>
+        <div class="context__btn-box">
+            <button class="context__btn context__btn--restart">Спробувати знову</button>
+            <button class="context__btn context__btn--map">на мапу</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
