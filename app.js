@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.classList.add('mobile__cursor')
         mobileCursor.style.opacity = '0'
         grid.appendChild(mobileCursor)
+        statistics.style.marginTop = '200px'
     }
     else {
         mobileCursor.style.display = 'none'
@@ -383,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () =>{
             unDisabledSquares.forEach(square => square.addEventListener('touchmove',    function touchStart(ev){
                 let touchLocation = ev.targetTouches[0];
                 leftPosition = touchLocation.pageX - 10-10
-                topPosition = touchLocation.pageY - 92 - 5
+                topPosition = touchLocation.pageY - 92 - 5 - 200
                 mobileCursor.style.left = leftPosition + 'px'
                 mobileCursor.style.top = topPosition + 'px'
             }))
