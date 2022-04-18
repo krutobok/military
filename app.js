@@ -10,15 +10,7 @@ document.addEventListener('DOMContentLoaded', () =>{
         lastY = event.touches[0].clientY;
     },{passive: false});
 
-    // window.addEventListener(
-    //     "touchmove",
-    //     function(event) {
-    //         if (event.scale !== 1) {
-    //             event.preventDefault();
-    //         }
-    //     },
-    //     { passive: false }
-    // );
+
 
 
 
@@ -114,14 +106,15 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.classList.add('mobile__cursor')
         mobileCursor.style.opacity = '0'
         grid.appendChild(mobileCursor)
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            let now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
+        window.addEventListener(
+            "dblclick",
+            function(event) {
+                if (event.scale !== 1) {
+                    event.preventDefault();
+                }
+            },
+            { passive: false }
+        );
     }
     else {
         mobileCursor.style.display = 'none'
@@ -224,9 +217,9 @@ document.addEventListener('DOMContentLoaded', () =>{
     function levelOneStart() {
         width = 8
         height = 8
-        currentTime = 250
+        currentTime = 100
         timeLevel()
-        aim = 20
+        aim = 100
         deleteOthers()
         currentLevel = 1
         imgItem.style.display = "none"
@@ -237,9 +230,9 @@ document.addEventListener('DOMContentLoaded', () =>{
         height = 8
         currentTime = 220
         timeLevel()
-        aim = 20
+        aim = 400
         deleteOthers()
-        tankAim = 5
+        tankAim = 60
         currentLevel = 2
         imgItem.style.display = "flex"
         scoreImg.classList.add('tank')
@@ -262,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () =>{
     function levelFourStart(){
         height = 9
         width = 9
-        currentMoves = 10
+        currentMoves = 40
         aim = 160
         moveLevel()
         currentLevel = 4
@@ -277,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () =>{
     function levelFiveStart() {
         height = 9
         width = 11
-        currentMoves = 10
+        currentMoves = 35
         currentTime = 150
         aim = 130
         timeMoveLvl()
@@ -351,59 +344,56 @@ document.addEventListener('DOMContentLoaded', () =>{
             grid.appendChild(square)
             squares.push(square)
         }
-        unDisabledSquares.forEach(square => square.addEventListener('dragstart', dragStart))
-        unDisabledSquares.forEach(square => square.addEventListener('dragend', dragEnd))
-        unDisabledSquares.forEach(square => square.addEventListener('dragover', dragOver))
-        unDisabledSquares.forEach(square => square.addEventListener('dragenter', dragEnter))
-        unDisabledSquares.forEach(square => square.addEventListener('dragleave', dragLeave))
-        unDisabledSquares.forEach(square => square.addEventListener('drop', dragDrop))
-        unDisabledSquares.forEach(square => square.addEventListener('click', ()=>{
-           if (squareIdBeingDragged === null){
-               if (killerGlobal === 0){
-                   classBeingDragged = square.className
-                   squareIdBeingDragged = parseInt(square.id)
-                   killer = 0
-               }
-               else{
-                   squareIdBeingReplaced = null
-                   squareIdBeingDragged = null
-                   classBeingReplaced = null
-                   classBeingDragged = null
-               }
+        if (detect === false) {
+            unDisabledSquares.forEach(square => square.addEventListener('dragstart', dragStart))
+            unDisabledSquares.forEach(square => square.addEventListener('dragend', dragEnd))
+            unDisabledSquares.forEach(square => square.addEventListener('dragover', dragOver))
+            unDisabledSquares.forEach(square => square.addEventListener('dragenter', dragEnter))
+            unDisabledSquares.forEach(square => square.addEventListener('dragleave', dragLeave))
+            unDisabledSquares.forEach(square => square.addEventListener('drop', dragDrop))
+            unDisabledSquares.forEach(square => square.addEventListener('click', () => {
+                if (squareIdBeingDragged === null) {
+                    if (killerGlobal === 0) {
+                        classBeingDragged = square.className
+                        squareIdBeingDragged = parseInt(square.id)
+                        killer = 0
+                    } else {
+                        squareIdBeingReplaced = null
+                        squareIdBeingDragged = null
+                        classBeingReplaced = null
+                        classBeingDragged = null
+                    }
 
-           }
-           else if (squareIdBeingDragged !== null){
-               squareIdBeingReplaced = parseInt(square.id)
-               if (squareIdBeingReplaced === squareIdBeingDragged){
-                   squareIdBeingReplaced = null
-                   squareIdBeingDragged = null
-                   classBeingReplaced = null
-                   classBeingDragged = null
-               }
-               else if (squareIdBeingReplaced !== squareIdBeingDragged){
-                   classBeingReplaced = square.className
+                } else if (squareIdBeingDragged !== null) {
+                    squareIdBeingReplaced = parseInt(square.id)
+                    if (squareIdBeingReplaced === squareIdBeingDragged) {
+                        squareIdBeingReplaced = null
+                        squareIdBeingDragged = null
+                        classBeingReplaced = null
+                        classBeingDragged = null
+                    } else if (squareIdBeingReplaced !== squareIdBeingDragged) {
+                        classBeingReplaced = square.className
 
-                   square.className = classBeingDragged
-                   squares[squareIdBeingDragged].className = classBeingReplaced
-                   dragEnd()
-                   setTimeout(()=> {
-                       if (killer === 0){
-                           square.className = classBeingReplaced
-                           squares[squareIdBeingDragged].className = classBeingDragged
-                           if (isMoves === true){
-                               currentMoves++
-                           }
-                       }
-                       squareIdBeingDragged = null
-                       squareIdBeingReplaced = null
-                       classBeingReplaced = null
-                       classBeingDragged = null
-                   }, 151)
-               }
-           }
-        }))
-
-
+                        square.className = classBeingDragged
+                        squares[squareIdBeingDragged].className = classBeingReplaced
+                        dragEnd()
+                        setTimeout(() => {
+                            if (killer === 0) {
+                                square.className = classBeingReplaced
+                                squares[squareIdBeingDragged].className = classBeingDragged
+                                if (isMoves === true) {
+                                    currentMoves++
+                                }
+                            }
+                            squareIdBeingDragged = null
+                            squareIdBeingReplaced = null
+                            classBeingReplaced = null
+                            classBeingDragged = null
+                        }, 151)
+                    }
+                }
+            }))
+        }
         if (detect === true){
             unDisabledSquares.forEach(square => square.addEventListener('touchstart',    function touchStart(){
                 if (killerGlobal === 0){
@@ -448,7 +438,6 @@ document.addEventListener('DOMContentLoaded', () =>{
                         squares[squareIdBeingDragged].className = classBeingReplaced
                         dragEnd()
                         setTimeout(() => {
-                            console.log(killer)
                             if (killer === 0) {
                                 squares[squareIdBeingReplaced].className = classBeingReplaced
                                 squares[squareIdBeingDragged].className = classBeingDragged
@@ -1347,6 +1336,11 @@ function boomChecking() {
                                 squares[i - width].className = ''
                                 boomScore++
                             }
+                            squares[i].className = ''
+                            squareIdBeingDragged = null
+                            squareIdBeingReplaced = null
+                            classBeingDragged = null
+                            classBeingReplaced = null
                             score += boomScore
                             scoreDisplay.textContent = score
                         }
@@ -1392,7 +1386,6 @@ function boomChecking() {
                 }
             }
             if (squares[i].className !== 'bayraktar') {
-                console.log('bay')
                if (detect === true) {
                   squares[i].oncontextmenu = null
                }
