@@ -310,6 +310,11 @@ document.addEventListener('DOMContentLoaded', () =>{
         unDisabledSquares.forEach(square => square.addEventListener('dragenter', dragEnter))
         unDisabledSquares.forEach(square => square.addEventListener('dragleave', dragLeave))
         unDisabledSquares.forEach(square => square.addEventListener('drop', dragDrop))
+        unDisabledSquares.forEach(square => square.addEventListener('touchstart', dragStart))
+        unDisabledSquares.forEach(square => square.addEventListener('touchend', () =>{
+            dragDrop()
+            dragEnd()
+        }))
     }
 
 
