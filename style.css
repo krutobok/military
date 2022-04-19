@@ -255,7 +255,10 @@ html{
     height: 2px;
     background-color: black;
     position: absolute;
-    left: 0;
-    right: 0;
+    left: -20px;
+    top: -20px;
     z-index: 10;
+}
+@viewport {
+    user-zoom: fixed;
 }

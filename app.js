@@ -395,7 +395,12 @@ document.addEventListener('DOMContentLoaded', () =>{
             }))
         }
         if (detect === true){
-            unDisabledSquares.forEach(square => square.addEventListener('touchstart',    function touchStart(){
+            unDisabledSquares.forEach(square => square.addEventListener('touchstart',    function touchStart(ev){
+                let touchLocation = ev.targetTouches[0];
+                leftPosition = touchLocation.pageX - 10-10
+                topPosition = touchLocation.pageY - 92 - 5
+                mobileCursor.style.left = leftPosition + 'px'
+                mobileCursor.style.top = topPosition + 'px'
                 if (killerGlobal === 0){
                     classBeingDragged = square.className
                     squareIdBeingDragged = parseInt(square.id)
@@ -915,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () =>{
                     squares[index].className = ''
                     indexLast = index
                 })
-                createColorBoom(indexLast)
+                createColorBoom(indexLast-2)
             }
 
         }
@@ -967,7 +972,18 @@ document.addEventListener('DOMContentLoaded', () =>{
                     squares[index].className = ''
                     indexLast = index
                 })
-                createBoomSmall(indexLast)
+                if (squareIdBeingReplaced === i+1){
+                    createBoomSmall(indexLast-2)
+                }
+                else if (squareIdBeingReplaced === i+2){
+                    createBoomSmall(indexLast-1)
+                }
+                else if (squareIdBeingDragged === i+1){
+                    createBoomSmall(indexLast-2)
+                }
+                else if (squareIdBeingDragged === i+2){
+                    createBoomSmall(indexLast-1)
+                }
             }
 
         }
@@ -1177,6 +1193,10 @@ function checkRowForThree() {
                 levelFour.classList.add('completed')
                 levelFive.style.display = 'block'
             }
+            if (currentLevelUnlock === 5){
+                levelFive.classList.add('completed')
+                alert("Ви пройшли гру!!!")
+            }
             currentLevelUnlock++
         }
             if (timerIdDecrease !== null){
@@ -1316,6 +1336,7 @@ function boomChecking() {
                             killerGlobal++
                             squares[i].className = ''
                             squares[i].oncontextmenu = null
+                            killer++
                             if (i % width !== 0 && !squares[i - 1].hasAttribute('data-disabled')) {
                                 militaryNumbers(i - 1)
                                 squares[i - 1].className = ''
