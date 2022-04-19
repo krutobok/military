@@ -1695,6 +1695,7 @@ function boomChecking() {
                         let index = i
                         for (let a = index-width; a >= 0; a-=width){
                             if (!squares[a].hasAttribute('data-disabled')){
+                                militaryNumbers(a)
                                 squares[a].className = ''
                                 boomScore++
                             }
