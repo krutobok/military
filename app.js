@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () =>{
 
 
 
+    document.oncontextmenu = noselect;
 
+    function noselect() {
+        return false;
+    }
 
     const grid = document.querySelector('.grid')
     const popup = document.querySelector('.popup')
@@ -97,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () =>{
     let currentPlanes = 0
     let currentBay = 0
     let currentDron = 0
+    let isStarstrike = false
+    let isStygna = false
+    let firstMove = false
     let detect
     let leftPosition
     let topPosition
@@ -106,15 +113,6 @@ document.addEventListener('DOMContentLoaded', () =>{
         mobileCursor.classList.add('mobile__cursor')
         mobileCursor.style.opacity = '0'
         grid.appendChild(mobileCursor)
-        window.addEventListener(
-            "dblclick",
-            function(event) {
-                if (event.scale !== 1) {
-                    event.preventDefault();
-                }
-            },
-            { passive: false }
-        );
     }
     else {
         mobileCursor.style.display = 'none'
@@ -396,11 +394,14 @@ document.addEventListener('DOMContentLoaded', () =>{
         }
         if (detect === true){
             unDisabledSquares.forEach(square => square.addEventListener('touchstart',    function touchStart(ev){
-                let touchLocation = ev.targetTouches[0];
-                leftPosition = touchLocation.pageX - 10-10
-                topPosition = touchLocation.pageY - 92 - 5
-                mobileCursor.style.left = leftPosition + 'px'
-                mobileCursor.style.top = topPosition + 'px'
+                if (firstMove === false){
+                    let touchLocation = ev.targetTouches[0];
+                    leftPosition = touchLocation.pageX - 10-10
+                    topPosition = touchLocation.pageY - 92 - 5
+                    mobileCursor.style.left = leftPosition + 'px'
+                    mobileCursor.style.top = topPosition + 'px'
+                    firstMove = true
+                }
                 if (killerGlobal === 0){
                     classBeingDragged = square.className
                     squareIdBeingDragged = parseInt(square.id)
@@ -722,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () =>{
             if (classBeingDragged === "bayraktar" && classBeingReplaced === "bayraktar") {
                 squares[squareIdBeingDragged].className = ''
                 if (detect === true) {
-                    squares[squareIdBeingDragged].oncontextmenu= null
+                    squares[squareIdBeingDragged].oncontextmenu = null
                     squares[squareIdBeingReplaced].oncontextmenu = null
                 }
                 if (detect === false) {
@@ -776,6 +777,31 @@ document.addEventListener('DOMContentLoaded', () =>{
                 score += boomScore
                 scoreDisplay.textContent = score
             }
+            if (classBeingDragged === "stygna" && classBeingReplaced === "stygna") {
+                squares[squareIdBeingDragged].className = ''
+                if (detect === true) {
+                    squares[squareIdBeingDragged].oncontextmenu = null
+                    squares[squareIdBeingReplaced].oncontextmenu = null
+                }
+                if (detect === false) {
+                    squares[squareIdBeingDragged].ondblclick = null
+                    squares[squareIdBeingReplaced].ondblclick = null
+                }
+                squares[squareIdBeingReplaced].className = ''
+                let boomScore = 1
+                killer++
+                moveDecrease()
+                console.log(1)
+                for (let i = 0; i < squares.length; i++){
+                    if (!squares[i].hasAttribute('data-disabled')){
+                        militaryNumbers(i)
+                        unDisabledSquares[i].className = ''
+                        boomScore++
+                    }
+                }
+                score += boomScore
+                scoreDisplay.textContent = score
+            }
             if ((squareIdBeingReplaced && !validMove) || ((squareIdBeingReplaced + 1) % width === 0 && squareIdBeingDragged % width === 0) || ((squareIdBeingDragged + 1) % width === 0 && squareIdBeingReplaced % width === 0)) {
                 squares[squareIdBeingReplaced].className = classBeingReplaced
                 squares[squareIdBeingDragged].className = classBeingDragged
@@ -816,6 +842,205 @@ document.addEventListener('DOMContentLoaded', () =>{
                 squares[i].className = militaryEquipment[randomColor]
             }
         }
+    }
+
+
+
+    function checkForStygna(){
+        let boomMassive = []
+        let isDisabled = false
+        let decidedClass
+        let isBlank
+
+        function checkInside(){
+            boomMassive.forEach(square => {
+                if (squares[square].hasAttribute('data-disabled')){
+                    if (squares[square].getAttribute('data-disabled') === 'true'){
+                        isDisabled = true
+                    }
+                }
+            })
+            if (isDisabled === false){
+                if (boomMassive.every(index => squares[index].className === decidedClass && !isBlank)){
+                    killer++
+                    if (isPlaying === true) {
+                        score += 7
+                        scoreDisplay.textContent = score
+                    }
+                    scoreDisplay.textContent = score
+                    killerGlobal++
+                    let indexLast
+                    let indexLastDouble
+                    boomMassive.forEach(index => {
+                        militaryNumbers(index)
+                        squares[index].className = ''
+                        indexLastDouble = index
+                        if (index === squareIdBeingDragged || index === squareIdBeingReplaced){
+                            indexLast = index
+                        }
+                    })
+                    if (indexLast === undefined){
+                        indexLast = indexLastDouble
+                    }
+                    createStygnaBoom(indexLast)
+                }
+            }
+        }
+
+        for (let i = width*2; i < width*height - width*2-2; i++){
+            boomMassive = [i, i+1, i+2, i+width, i+width*2, i-width*2, i-width]
+
+            isDisabled = false
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+
+            if ((i+2) % width === 0 || (i+1) % width === 0) continue
+
+            checkInside()
+
+            isDisabled = false
+            boomMassive = [i, i+1, i+2, i+2+width, i+2+width*2, i-width*2+2, i-width+2]
+
+            checkInside()
+        }
+        for (let i = 0; i < width*height - width*2-4; i++){
+            boomMassive = [i, i+1, i+2, i+3, i+4, i+width*2+2, i+width+2]
+            isDisabled = false
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+
+            if ((i+4) % width === 0 || (i+3) % width === 0 || (i+2) % width === 0 || (i+1) % width === 0) continue
+
+            checkInside()
+        }
+        for (let i = width*2; i < width*height - 4; i++){
+            boomMassive = [i, i+1, i+2, i+3, i+4, i-width*2+2, i-width+2]
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+            isDisabled = false
+
+            if ((i+4) % width === 0 || (i+3) % width === 0 || (i+2) % width === 0 || (i+1) % width === 0) continue
+
+            checkInside()
+        }
+
+    }
+
+
+
+
+
+    function checkColumnAndRowForFive() {
+
+        let boomMassive = []
+        let isDisabled = false
+        let decidedClass
+        let isBlank
+
+        function checkInside(){
+            boomMassive.forEach(square => {
+                if (squares[square].hasAttribute('data-disabled')){
+                    if (squares[square].getAttribute('data-disabled') === 'true'){
+                        isDisabled = true
+                    }
+                }
+            })
+            if (isDisabled === false){
+                if (boomMassive.every(index => squares[index].className === decidedClass && !isBlank)){
+                    killer++
+                    if (isPlaying === true) {
+                        score += 5
+                        scoreDisplay.textContent = score
+                    }
+                    scoreDisplay.textContent = score
+                    killerGlobal++
+                    let indexLast
+                    let indexLastDouble
+                    boomMassive.forEach(index => {
+                        militaryNumbers(index)
+                        squares[index].className = ''
+                        indexLastDouble = index
+                        if (index === squareIdBeingDragged || index === squareIdBeingReplaced){
+                            indexLast = index
+                        }
+                    })
+                    if (indexLast === undefined){
+                        indexLast = indexLastDouble
+                    }
+                    createStarStrikeBoom(indexLast)
+                }
+            }
+        }
+
+        for (let i = 0; i < width*height - width*2-2; i++){
+            boomMassive = [i, i+1, i+2, i+width, i+width*2]
+
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+
+            if ((i+2) % width === 0 || (i+1) % width === 0) continue
+
+            checkInside()
+
+            boomMassive = [i, i+1, i+2, i+2+width, i+2+width*2]
+            isDisabled = false
+
+            checkInside()
+
+            boomMassive = [i, i+width, i+2*width, i+1+2*width, i+2+width*2]
+            isDisabled = false
+
+            checkInside()
+
+            boomMassive = [i, i+width, i+1+width,i+2+width, i+width*2]
+            isDisabled = false
+
+            checkInside()
+
+            boomMassive = [i, i+1, i+2, i+1+width, i+1+width*2]
+            isDisabled = false
+
+            checkInside()
+
+        }
+        for (let i = width*2; i < squares.length-3; i++){
+            boomMassive = [i, i+1, i+2, i+2-width, i+2-width*2]
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+            isDisabled = false
+            if ((i+2) % width === 0 || (i+1) % width === 0) continue
+            checkInside()
+
+            boomMassive = [i, i+1, i+2, i+1-width, i+1-width*2]
+            isDisabled = false
+            checkInside()
+        }
+        for (let i = width; i < squares.length-width-3; i++){
+            boomMassive = [i, i+1, i+2, i+2-width, i+2+width]
+            decidedClass = squares[i].className
+            isBlank = squares[i].className === ''
+            isDisabled = false
+
+            if ((i+2) % width === 0 || (i+1) % width === 0) continue
+
+            checkInside()
+        }
+
+
+
+
+        //
+        // boomMassive = [i+width, i+1+width,i+2+width, i+2, i+2+width*2]
+        // isDisabled = false
+        //
+        // checkInside()
+        //
+        // boomMassive = [i+1, i+1+width, i+1+width*2, i+width*2, i+width*2+2]
+        // isDisabled = false
+        //
+        // checkInside()
+
+
     }
 
 
@@ -982,6 +1207,9 @@ document.addEventListener('DOMContentLoaded', () =>{
                     createBoomSmall(indexLast-2)
                 }
                 else if (squareIdBeingDragged === i+2){
+                    createBoomSmall(indexLast-1)
+                }
+                else{
                     createBoomSmall(indexLast-1)
                 }
             }
@@ -1221,6 +1449,8 @@ function checkRowForThree() {
 
     function checking() {
          moveDown()
+         checkForStygna()
+         checkColumnAndRowForFive()
          checkRowForFive()
          checkColumnForFive()
          checkColumnForFour()
@@ -1320,7 +1550,52 @@ function squaresChecking() {
         }
     }
 
+    function createStarStrikeBoom(index){
+        if (isPlaying === true) {
+            squares[index].className = 'starstrike'
+            if (isStarstrike === false) {
+                if (detect === true){
+                    popupText.textContent = "Це - Starstreak при довгому кліку на нього він знищує ворожу техніку, що знаходиться зверху"
+                }
+                if (detect === false){
+                    popupText.textContent = "Це - Starstreak при двойному кліку на нього він знищує ворожу техніку, що знаходиться зверху"
+                }
+                popupImg.setAttribute('src', "img/starstrike.jpg")
+                popup.style.display = "block"
+                isStarstrike = true
+                clearInterval(timerIdDecrease)
+                timerIdDecrease = null
+            }
+        }
+    }
+    function createStygnaBoom(index){
+        if (isPlaying === true) {
+            squares[index].className = 'stygna'
+            if (isStygna === false) {
+                if (detect === true){
+                    popupText.textContent = "Це - Стугна при довгому кліку на неї вона знищує ворожу техніку, що знаходиться близько. Має великий радіус дії"
+                }
+                if (detect === false){
+                    popupText.textContent = "Це - Стугна при двойному кліку на неї вона знищує ворожу техніку, що знаходиться близько. Має великий радіус дії"
+                }
+                popupImg.setAttribute('src', "img/stygna.jpg")
+                popup.style.display = "block"
+                isStygna = true
+                clearInterval(timerIdDecrease)
+                timerIdDecrease = null
+            }
+        }
+    }
 
+
+
+    function boomGoingOn(index, variable) {
+        if (!squares[index].hasAttribute('data-disabled')) {
+            militaryNumbers(index)
+            squares[index].className = ''
+            variable++
+        }
+    }
 
 
 function boomChecking() {
@@ -1403,10 +1678,258 @@ function boomChecking() {
                         score += boomScore
                         scoreDisplay.textContent = score
                     }
+                }
+            }
+            if (squares[i].className === 'starstrike') {
+                squares[i].setAttribute('draggable', false)
+                if (detect === true) {
+                    squares[i].oncontextmenu = function (boom) {
+                        let boomScore = 1
+                        if (timerId === null) {
+                            timerId = setInterval(checking, 100)
+                        }
+                        killerGlobal++
+                        squares[i].className = ''
+                        squares[i].oncontextmenu = null
+                        killer++
+                        let index = i
+                        for (let a = index-width; a >= 0; a-=width){
+                            if (!squares[a].hasAttribute('data-disabled')){
+                                squares[a].className = ''
+                                boomScore++
+                            }
+                        }
+                        squares[i].className = ''
+                        squareIdBeingDragged = null
+                        squareIdBeingReplaced = null
+                        classBeingDragged = null
+                        classBeingReplaced = null
+                        score += boomScore
+                        scoreDisplay.textContent = score
+                    }
+                }
+                if (detect === false) {
+                    squares[i].ondblclick = function (boom) {
+                        let boomScore = 1
+                        if (timerId === null) {
+                            timerId = setInterval(checking, 100)
+                        }
+                        killerGlobal++
+                        squares[i].className = ''
+                        squares[i].oncontextmenu = null
+                        killer++
+                        let index = i
+                        for (let a = index; a >= 0; a-=width){
+                            if (!squares[a].hasAttribute('data-disabled')){
+                                squares[a].className = ''
+                                boomScore++
+                            }
+                        }
+                        squares[i].className = ''
+                        squareIdBeingDragged = null
+                        squareIdBeingReplaced = null
+                        classBeingDragged = null
+                        classBeingReplaced = null
+                        score += boomScore
+                        scoreDisplay.textContent = score
+                    }
 
                 }
             }
-            if (squares[i].className !== 'bayraktar') {
+            if (squares[i].className === 'stygna') {
+                squares[i].setAttribute('draggable', false)
+                if (detect === false) {
+                    squares[i].ondblclick = function (boom) {
+                            let boomScore = 1
+                            if (timerId === null) {
+                                timerId = setInterval(checking, 100)
+                            }
+                            killerGlobal++
+                            squares[i].className = ''
+                            squares[i].ondblclick = null
+                            console.log(1)
+
+                            if (i % width !== 0) {
+                                boomGoingOn(i - 1)
+                            }
+                            if ((i + 1) % width !== 0) {
+                                boomGoingOn(i + 1)
+                            }
+                            if (i < squares.length - width) {
+                                boomGoingOn(i + width)
+                            }
+                            if (i >= width) {
+                                boomGoingOn(i - width)
+                            }
+                            if (i < squares.length - width - 1 && (i + 1) % width !== 0) {
+                                boomGoingOn(i + width + 1)
+                            }
+                            if (i < squares.length - width + 1 && i % width !== 0) {
+                                boomGoingOn(i + width - 1)
+                            }
+                            if (i >= width + 1 && i % width !== 0) {
+                                boomGoingOn(i - width - 1)
+                            }
+                            if (i >= width && (i + 1) % width !== 0) {
+                                boomGoingOn(i - width + 1)
+                            }
+                            if (i >= width * 2) {
+                                boomGoingOn(i - 2 * width)
+                            }
+                            if (i < squares.length - 2 * width) {
+                                boomGoingOn(i + 2 * width)
+                            }
+                            if ((i - 1) % width !== 0) {
+                                boomGoingOn(i - 2)
+                            }
+                            if ((i + 2) % width !== 0 && i < squares.length - 2) {
+                                boomGoingOn(i + 2)
+                            }
+
+                            if (i < squares.length - 2 * width - 1 && (i + 1) % width !== 0) {
+                                boomGoingOn(i + 2 * width + 1)
+                            }
+                            if (i < squares.length - 2 * width + 1 && i % width !== 0) {
+                                boomGoingOn(i + 2 * width - 1)
+                            }
+                            if (i >= 2 * width + 1 && i % width !== 0) {
+                                boomGoingOn(i - 2 * width - 1)
+                            }
+                            if (i >= 2 * width && (i + 1) % width !== 0) {
+                                boomGoingOn(i - 2 * width + 1)
+                            }
+
+
+                            if (i < squares.length - width - 2 && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                                boomGoingOn(i + width + 2)
+                            }
+                            if (i < squares.length - width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                                boomGoingOn(i + width - 2)
+                            }
+                            if (i >= width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                                boomGoingOn(i - width - 2)
+                            }
+                            if (i >= width && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                                boomGoingOn(i - width + 2)
+                            }
+                            if (i < squares.length - 2 * width - 2 && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                                boomGoingOn(i + 2 * width + 2)
+                            }
+                            if (i < squares.length - 2 * width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                                boomGoingOn(i + 2 * width - 2)
+                            }
+                            if (i >= 2 * width + 1 && (i - 1) % width !== 0 && i % width !== 0) {
+                                boomGoingOn(i - 2 * width - 2)
+                            }
+                            if (i >= 2 * width && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                                boomGoingOn(i - 2 * width + 2)
+                            }
+                            squares[i].className = ''
+                            squareIdBeingDragged = null
+                            squareIdBeingReplaced = null
+                            classBeingDragged = null
+                            classBeingReplaced = null
+                            score += boomScore
+                            scoreDisplay.textContent = score
+                        }
+                }
+                if (detect === true) {
+                    squares[i].oncontextmenu = function (boom) {
+                        let boomScore = 1
+                        if (timerId === null) {
+                            timerId = setInterval(checking, 100)
+                        }
+                        killerGlobal++
+                        squares[i].className = ''
+                        squares[i].oncontextmenu = null
+                        console.log(1)
+
+                        if (i % width !== 0) {
+                            boomGoingOn(i - 1)
+                        }
+                        if ((i + 1) % width !== 0) {
+                            boomGoingOn(i + 1)
+                        }
+                        if (i < squares.length - width) {
+                            boomGoingOn(i + width)
+                        }
+                        if (i >= width) {
+                            boomGoingOn(i - width)
+                        }
+                        if (i < squares.length - width - 1 && (i + 1) % width !== 0) {
+                            boomGoingOn(i + width + 1)
+                        }
+                        if (i < squares.length - width + 1 && i % width !== 0) {
+                            boomGoingOn(i + width - 1)
+                        }
+                        if (i >= width + 1 && i % width !== 0) {
+                            boomGoingOn(i - width - 1)
+                        }
+                        if (i >= width && (i + 1) % width !== 0) {
+                            boomGoingOn(i - width + 1)
+                        }
+                        if (i >= width * 2) {
+                            boomGoingOn(i - 2 * width)
+                        }
+                        if (i < squares.length - 2 * width) {
+                            boomGoingOn(i + 2 * width)
+                        }
+                        if ((i - 1) % width !== 0) {
+                            boomGoingOn(i - 2)
+                        }
+                        if ((i + 2) % width !== 0 && i < squares.length - 2) {
+                            boomGoingOn(i + 2)
+                        }
+
+                        if (i < squares.length - 2 * width - 1 && (i + 1) % width !== 0) {
+                            boomGoingOn(i + 2 * width + 1)
+                        }
+                        if (i < squares.length - 2 * width + 1 && i % width !== 0) {
+                            boomGoingOn(i + 2 * width - 1)
+                        }
+                        if (i >= 2 * width + 1 && i % width !== 0) {
+                            boomGoingOn(i - 2 * width - 1)
+                        }
+                        if (i >= 2 * width && (i + 1) % width !== 0) {
+                            boomGoingOn(i - 2 * width + 1)
+                        }
+
+
+                        if (i < squares.length - width - 2 && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                            boomGoingOn(i + width + 2)
+                        }
+                        if (i < squares.length - width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                            boomGoingOn(i + width - 2)
+                        }
+                        if (i >= width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                            boomGoingOn(i - width - 2)
+                        }
+                        if (i >= width && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                            boomGoingOn(i - width + 2)
+                        }
+                        if (i < squares.length - 2 * width - 2 && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                            boomGoingOn(i + 2 * width + 2)
+                        }
+                        if (i < squares.length - 2 * width + 2 && (i - 1) % width !== 0 && i % width !== 0) {
+                            boomGoingOn(i + 2 * width - 2)
+                        }
+                        if (i >= 2 * width + 1 && (i - 1) % width !== 0 && i % width !== 0) {
+                            boomGoingOn(i - 2 * width - 2)
+                        }
+                        if (i >= 2 * width && (i + 2) % width !== 0 && (i + 1) % width !== 0) {
+                            boomGoingOn(i - 2 * width + 2)
+                        }
+                        squares[i].className = ''
+                        squareIdBeingDragged = null
+                        squareIdBeingReplaced = null
+                        classBeingDragged = null
+                        classBeingReplaced = null
+                        score += boomScore
+                        scoreDisplay.textContent = score
+                    }
+                }
+            }
+            if (squares[i].className !== 'bayraktar' && squares[i].className !== 'starstrike' && squares[i].className !== 'stygna') {
                if (detect === true) {
                   squares[i].oncontextmenu = null
                }
@@ -1417,6 +1940,19 @@ function boomChecking() {
             }
         }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function timeDecrease(){

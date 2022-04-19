@@ -68,6 +68,16 @@ html{
     background-color: darkblue;
     background-image: url('img/dron.png');
 }
+.starstrike{
+    background-image: url('img/starstrike.jpg');
+    background-color: darkred;
+}
+.stygna{
+    background-image: url('img/stygna.jpg');
+    background-color: darkgray;
+}
+
+
 .popup, .context{
     position: absolute;
     width: 100%;
