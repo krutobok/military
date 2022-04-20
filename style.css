@@ -258,8 +258,11 @@ html{
 }
 .mix-up, .surrender{
     font-size: 20px;
+    cursor: pointer;
 }
-
+.mix-up[disabled='disabled']{
+    cursor: auto;
+}
 .grid .mobile__cursor{
     width: 2px;
     height: 2px;

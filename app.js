@@ -101,6 +101,8 @@ document.addEventListener('DOMContentLoaded', () =>{
     let currentPlanes = 0
     let currentBay = 0
     let currentDron = 0
+    let currentStarstrike = 0
+    let currentStygna = 0
     let isStarstrike = false
     let isStygna = false
     let firstMove = false
@@ -561,6 +563,24 @@ document.addEventListener('DOMContentLoaded', () =>{
                     i--
                 }
             }
+            for (let i = 0; i < currentStarstrike; i++){
+                let change = Math.floor(Math.random() * unDisabledSquares.length)
+                if (unDisabledSquares[change].className === ''){
+                    unDisabledSquares[change].className = 'starstrike'
+                }
+                else{
+                    i--
+                }
+            }
+            for (let i = 0; i < currentStygna; i++){
+                let change = Math.floor(Math.random() * unDisabledSquares.length)
+                if (unDisabledSquares[change].className === ''){
+                    unDisabledSquares[change].className = 'stygna'
+                }
+                else{
+                    i--
+                }
+            }
             if (isMoves === true && isTime === false){
                 if (currentMoves < 5){
                     currentMoves = 1
@@ -573,7 +593,6 @@ document.addEventListener('DOMContentLoaded', () =>{
 
             }
             else if (isMoves === false && isTime === true){
-                currentTime -= 20
                 timeDisplay.textContent = currentTime + 'c'
                 if (currentTime < 20){
                     currentTime = 1
@@ -1485,6 +1504,8 @@ function squaresChecking() {
     currentRockets = 0
     currentBay = 0
     currentDron = 0
+    currentStarstrike = 0
+    currentStygna = 0
     unDisabledSquares.forEach(square => {
         if (square.className === 'tank') {
             currentTanks++
@@ -1509,6 +1530,12 @@ function squaresChecking() {
         }
         if (square.className === 'dron') {
             currentDron++
+        }
+        if (square.className === 'starstrike') {
+            currentStarstrike++
+        }
+        if (square.className === 'stygna') {
+            currentStygna++
         }
     })
 }
